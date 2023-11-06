@@ -31,6 +31,7 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 from tabulate import tabulate
 import traceback
+from datetime import datetime as dt
 
 """
 La vista se encarga de la interacción con el usuario
@@ -45,7 +46,7 @@ def new_controller():
         Se crea una instancia del controlador
     """
     #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    return controller.new_controller()
 
 
 def print_menu():
@@ -61,13 +62,35 @@ def print_menu():
     print("9- Ejecutar Requerimiento 8")
     print("0- Salir")
 
+def archivo()->str:
+    input_file_size = int(input("Seleccione el tamaño del archivo: \n 1-5% \n 2-10% \n 3-20% \n 4-30% \n 5-50% \n 6-80% \n 7-large \n 8-small \n"))
+    tamanio = ""
+    if input_file_size == 1:
+        tamanio = "-5pct.csv"
+    elif input_file_size == 2:
+        tamanio = "-10pct.csv"
+    elif input_file_size == 3:
+        tamanio = "-20pct.csv"
+    elif input_file_size == 4:
+        tamanio = "-30pct.csv"
+    elif input_file_size == 5:
+        tamanio = "-50pct.csv"
+    elif input_file_size == 6:
+        tamanio = "-80pct.csv"
+    elif input_file_size == 7:
+        tamanio = "-large.csv"
+    elif input_file_size == 8:
+        tamanio = "-small.csv"
+    return tamanio
 
-def load_data(control):
+def load_data(control, tamanio):
     """
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    pass
+    temblores = "temblores-utf8"+tamanio
+    return controller.load_data(control, temblores)
+    #sublist_earthquakes = controller.loadsublist(control, "goalscorers")
 
 
 def print_data(control, id):
@@ -82,9 +105,13 @@ def print_req_1(control):
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
-
-
+    initial_date = dt.strptime(input("Ingrese la fecha inicial(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
+    final_date = dt.strptime(input("Ingrese la fecha final(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
+    result, total = controller.req_1(control, initial_date, final_date)
+    
+    print("============= REQ No. 1 Results ============")
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+    print("Total different dates: "+str(total))
 def print_req_2(control):
     """
         Función que imprime la solución del Requerimiento 2 en consola
@@ -142,7 +169,6 @@ def print_req_8(control):
 
 
 # Se crea el controlador asociado a la vista
-control = new_controller()
 
 # main del reto
 if __name__ == "__main__":
@@ -155,8 +181,11 @@ if __name__ == "__main__":
         print_menu()
         inputs = input('Seleccione una opción para continuar\n')
         if int(inputs) == 1:
+            control = new_controller()
             print("Cargando información de los archivos ....\n")
-            data = load_data(control)
+            tamanio = archivo()
+            data = load_data(control, tamanio)
+            print(data)
         elif int(inputs) == 2:
             print_req_1(control)
 

@@ -25,29 +25,48 @@ import model
 import time
 import csv
 import tracemalloc
+from datetime import datetime as dt
+import csv
+import sys
+import os
+"""
+Ayuda para la lectura de los archivos.
+"""
+csv.field_size_limit(2147483647)
+default_limit = 1000
+sys.setrecursionlimit(default_limit*10)
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
-
 
 def new_controller():
     """
     Crea una instancia del modelo
     """
     #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    control = {
+        "model": None
+    }
+    control["model"] = model.new_data_structs()
+    return control
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data(control, ruta):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
-    pass
-
+    earthquakes = control["model"]
+    eathquakesFile = os.path.join(cf.data_dir+"/earthquakes", ruta)
+    inputEarthquakesFile = csv.DictReader(open(eathquakesFile, encoding="utf-8"))
+    for temblor in inputEarthquakesFile:
+        temblor["time"] = dt.strptime(temblor["time"], ("%Y-%m-%dT%H:%M:%S.%fZ")).date()
+        model.add_earthquakes(earthquakes, temblor)
+    sizeEarthquakes= model.timeSize(earthquakes)
+    return sizeEarthquakes
 
 # Funciones de ordenamiento
 
@@ -69,12 +88,13 @@ def get_data(control, id):
     pass
 
 
-def req_1(control):
+def req_1(control, initial, final):
     """
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pass
+    temblores = model.req_1(control["model"], initial, final)
+    return temblores
 
 
 def req_2(control):

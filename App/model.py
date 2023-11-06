@@ -40,6 +40,7 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
+from datetime import datetime as dt
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -55,18 +56,60 @@ def new_data_structs():
     manera vacía para posteriormente almacenar la información.
     """
     #TODO: Inicializar las estructuras de datos
-    pass
+    earthquakes = {"mag": None,
+                "place": None,
+                "time": None,
+                }
+
+    earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
+    earthquakes["place"] = lt.newList("ARRAY_LIST")
+    earthquakes["time"] = om.newMap(omaptype="RBT", cmpfunction=cmpDates)
+    return earthquakes
 
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_temblores_fechas(earthquakes, temblores):
+    """
+    Función para agregar fechas al arbol.
+    """
+    #TODO: Crear la función para agregar elementos a una lista
+    fechas = earthquakes["time"]
+    if not om.contains(fechas,temblores["time"]):
+        lista = lt.newList("ARRAY_LIST")
+        lt.addLast(lista, temblores)
+        om.put(fechas, temblores["time"], lista)
+    else:
+        pair = om.get(fechas, temblores["time"])
+        lista = me.getValue(pair)
+        lt.addLast(lista, temblores)   
+        mp.put(fechas, temblores["time"], lista)
+   
+    return fechas
+        
+def add_mag(earthquakes, temblores):
+    """
+    Función para agregar magnitudes al arbol.
+    """
+    magnitudes = earthquakes["mag"]
+    if not om.contains(magnitudes,temblores["mag"]):
+        lista = lt.newList("ARRAY_LIST")
+        lt.addLast(lista, temblores)
+        om.put(magnitudes, temblores["mag"], lista)
+    else:
+        pair = om.get(magnitudes, temblores["mag"])
+        lista = me.getValue(pair)
+        lt.addLast(lista, temblores)   
+        mp.put(magnitudes, temblores["mag"], lista)
+   
+    return magnitudes
+
+def add_earthquakes(earthquakes, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    #TODO: Crear la función para agregar elementos a una lista
-    pass
-
+    add_mag(earthquakes, data)
+    add_temblores_fechas(earthquakes, data)
 
 # Funciones para creacion de datos
 
@@ -87,6 +130,11 @@ def get_data(data_structs, id):
     #TODO: Crear la función para obtener un dato de una lista
     pass
 
+def timeSize(earthquakes):
+    """
+    Retorna el tamaño de la lista de datos
+    """
+    return lt.size(earthquakes["time"])
 
 def data_size(data_structs):
     """
@@ -96,12 +144,22 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(earthquakes, initial, final):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    treeDates = earthquakes["time"]
+    keys = om.values(treeDates, initial, final)
+    datos = lt.iterator(keys)
+    lista = []
+    contador = 0
+    for each in datos:
+        if each not in lista:
+            lista.append(each)
+            contador += 1
+        
+    return keys, contador
 
 
 def req_2(data_structs):
@@ -192,3 +250,26 @@ def sort(data_structs):
     """
     #TODO: Crear función de ordenamiento
     pass
+
+    
+def cmpDates(date1, date2):
+    """
+    Compara dos fechas
+    """
+    if (date1 == date2):
+        return 0
+    elif (date1 > date2):
+        return 1
+    else:
+        return -1
+    
+def cmpMag(mag1, mag2):
+    """
+    Compara dos fechas
+    """
+    if (mag1 == mag2):
+        return 0
+    elif (mag1 > mag2):
+        return 1
+    else:
+        return -1
