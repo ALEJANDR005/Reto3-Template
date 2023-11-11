@@ -89,10 +89,11 @@ def load_data(control, tamanio):
     """
     #TODO: Realizar la carga de datos
     temblores = "temblores-utf8"+tamanio
-    return controller.load_data(control, temblores)
-    #sublist_earthquakes = controller.loadsublist(control, "goalscorers")
-
-
+    result = controller.load_data(control, temblores)
+    print("---- EATHQUAKES RESULTS ----")
+ 
+    #print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+    return result
 def print_data(control, id):
     """
         Función que imprime un dato dado su ID
@@ -112,6 +113,7 @@ def print_req_1(control):
     print("============= REQ No. 1 Results ============")
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
     print("Total different dates: "+str(total))
+
 def print_req_2(control):
     """
         Función que imprime la solución del Requerimiento 2 en consola
@@ -184,8 +186,10 @@ if __name__ == "__main__":
             control = new_controller()
             print("Cargando información de los archivos ....\n")
             tamanio = archivo()
-            data = load_data(control, tamanio)
-            print(data)
+            size, lista = load_data(control, tamanio)
+            print(size)
+            print(tabulate(lt.iterator(lista), headers="keys", tablefmt="grid"))
+
         elif int(inputs) == 2:
             print_req_1(control)
 

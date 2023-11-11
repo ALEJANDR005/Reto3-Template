@@ -65,8 +65,8 @@ def load_data(control, ruta):
     for temblor in inputEarthquakesFile:
         temblor["time"] = dt.strptime(temblor["time"], ("%Y-%m-%dT%H:%M:%S.%fZ")).date()
         model.add_earthquakes(earthquakes, temblor)
-    sizeEarthquakes= model.timeSize(earthquakes)
-    return sizeEarthquakes
+    sizeEarthquakes= model.temblores_size(earthquakes)
+    return sizeEarthquakes, model.get5(earthquakes["temblores"])
 
 # Funciones de ordenamiento
 
@@ -93,8 +93,8 @@ def req_1(control, initial, final):
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    temblores = model.req_1(control["model"], initial, final)
-    return temblores
+    temblores, contador = model.req_1(control["model"], initial, final)
+    return model.get3(temblores), contador
 
 
 def req_2(control):

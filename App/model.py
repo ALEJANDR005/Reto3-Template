@@ -41,6 +41,7 @@ from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
 from datetime import datetime as dt
+from tabulate import tabulate
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
@@ -57,12 +58,12 @@ def new_data_structs():
     """
     #TODO: Inicializar las estructuras de datos
     earthquakes = {"mag": None,
-                "place": None,
+                "temblores": None,
                 "time": None,
                 }
 
     earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
-    earthquakes["place"] = lt.newList("ARRAY_LIST")
+    earthquakes["temblores"] = lt.newList("ARRAY_LIST")
     earthquakes["time"] = om.newMap(omaptype="RBT", cmpfunction=cmpDates)
     return earthquakes
 
@@ -108,9 +109,27 @@ def add_earthquakes(earthquakes, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    add_mag(earthquakes, data)
-    add_temblores_fechas(earthquakes, data)
+    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
+    lt.addLast(earthquakes["temblores"], data_filtrada)
+    add_mag(earthquakes, data_filtrada)
+    add_temblores_fechas(earthquakes, data_filtrada)
 
+def filtrar(code, time, lat, long, mag, title,depth,felt, cdi, mmi, tsunami):
+    resp = {
+        "code": code,
+        "time": time,
+        "lat": lat,
+        "long": long,
+        "mag": mag,
+        "title": title,
+        "depth": depth,
+        "felt": felt if not felt in [None, "", " "] else "Unknown",
+        "cdi": cdi if not cdi in [None, "", " "] else "Unknown",
+        "mmi": mmi if not mmi in [None, "", " "] else "Unknown",
+        "tsunami": False if tsunami == "0" else True
+    }
+    
+    return resp
 # Funciones para creacion de datos
 
 def new_data(id, info):
@@ -136,12 +155,12 @@ def timeSize(earthquakes):
     """
     return lt.size(earthquakes["time"])
 
-def data_size(data_structs):
+def temblores_size(earthquake):
     """
     Retorna el tamaño de la lista de datos
     """
     #TODO: Crear la función para obtener el tamaño de una lista
-    pass
+    return lt.size(earthquake["temblores"])
 
 
 def req_1(earthquakes, initial, final):
@@ -150,16 +169,29 @@ def req_1(earthquakes, initial, final):
     """
     # TODO: Realizar el requerimiento 1
     treeDates = earthquakes["time"]
-    keys = om.values(treeDates, initial, final)
-    datos = lt.iterator(keys)
-    lista = []
+    valores = om.values(treeDates, initial, final)
+    llaves = om.keys(treeDates, initial, final)
+    listas_filtradas = lt.iterator(valores)
+    resp = lt.newList("ARRAY_LIST")
     contador = 0
-    for each in datos:
-        if each not in lista:
-            lista.append(each)
-            contador += 1
+    
+    i = 1
+    
+    while i <= lt.size(llaves):
+        key = lt.getElement(llaves, i)
+        value = lt.getElement(valores, i)
+        dic = {
+                "time": key, 
+                    
+                "events": lt.size(value),
+                    
+                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
+            }
+        lt.addLast(resp, dic)
+        i+=1
         
-    return keys, contador
+            
+    return resp, lt.size(llaves)
 
 
 def req_2(data_structs):
@@ -273,3 +305,23 @@ def cmpMag(mag1, mag2):
         return 1
     else:
         return -1
+    
+def get5(lista):
+    sublist = lt.newList("ARRAY_LIST")
+    for x in range(0,5):
+        element = lt.getElement(lista, x)
+        lt.addLast(sublist, element)
+    for x in range((lt.size(lista)-5),(lt.size(lista))):
+        element = lt.getElement(lista, x)
+        lt.addLast(sublist, element)
+    return sublist 
+
+def get3(lista):
+    sublist = lt.newList("ARRAY_LIST")
+    for x in range(0,3):
+        element = lt.getElement(lista, x)
+        lt.addLast(sublist, element)
+    for x in range((lt.size(lista)-3),(lt.size(lista))):
+        element = lt.getElement(lista, x)
+        lt.addLast(sublist, element)
+    return sublist 
