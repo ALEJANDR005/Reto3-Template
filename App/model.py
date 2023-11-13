@@ -74,7 +74,6 @@ def add_temblores_fechas(earthquakes, temblores):
     """
     Función para agregar fechas al arbol.
     """
-    #TODO: Crear la función para agregar elementos a una lista
     fechas = earthquakes["time"]
     if not om.contains(fechas,temblores["time"]):
         lista = lt.newList("ARRAY_LIST")
@@ -120,7 +119,7 @@ def filtrar(code, time, lat, long, mag, title,depth,felt, cdi, mmi, tsunami):
         "time": time,
         "lat": lat,
         "long": long,
-        "mag": mag,
+        "mag": float(mag),
         "title": title,
         "depth": depth,
         "felt": felt if not felt in [None, "", " "] else "Unknown",
@@ -130,15 +129,6 @@ def filtrar(code, time, lat, long, mag, title,depth,felt, cdi, mmi, tsunami):
     }
     
     return resp
-# Funciones para creacion de datos
-
-def new_data(id, info):
-    """
-    Crea una nueva estructura para modelar los datos
-    """
-    #TODO: Crear la función para estructurar los datos
-    pass
-
 
 # Funciones de consulta
 
@@ -167,39 +157,52 @@ def req_1(earthquakes, initial, final):
     """
     Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 1
+    
     treeDates = earthquakes["time"]
     valores = om.values(treeDates, initial, final)
     llaves = om.keys(treeDates, initial, final)
-    listas_filtradas = lt.iterator(valores)
+    lt.iterator(valores)
     resp = lt.newList("ARRAY_LIST")
-    contador = 0
-    
-    i = 1
-    
-    while i <= lt.size(llaves):
+
+    i=1
+    while i<= lt.size(llaves):
         key = lt.getElement(llaves, i)
         value = lt.getElement(valores, i)
-        dic = {
-                "time": key, 
-                    
-                "events": lt.size(value),
-                    
+        dic = {"time": key,       
+                "events": lt.size(value),    
                 "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
-            }
+                }
         lt.addLast(resp, dic)
         i+=1
-        
-            
+              
     return resp, lt.size(llaves)
 
 
-def req_2(data_structs):
+def req_2(earthquakes, inferior, superior):
     """
     Función que soluciona el requerimiento 2
     """
-    # TODO: Realizar el requerimiento 2
-    pass
+    
+    mag_map = earthquakes["mag"]
+    values = om.values(mag_map, inferior, superior)
+    keys = om.keys(mag_map, inferior, superior)
+    lt.iterator(values)
+    answer = lt.newList("ARRAY_LIST")
+    
+    i=1
+    
+    while i<= lt.size(keys):
+        key = lt.getElement(keys,i)
+        value = lt.getElement(values,i)
+        dic = {"mag":key,
+               "events": lt.size(value),
+               "details": tabulate(lt.iterator(value), headers="keys", tablefmt="grid")
+               }
+        lt.addLast(answer, dic)
+        i+=1
+        
+    return answer, lt.size(keys)
+
 
 
 def req_3(data_structs):
@@ -325,3 +328,6 @@ def get3(lista):
         element = lt.getElement(lista, x)
         lt.addLast(sublist, element)
     return sublist 
+
+def mag(earthquakes):
+    return earthquakes["mag"]

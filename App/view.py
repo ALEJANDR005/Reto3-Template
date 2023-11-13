@@ -87,40 +87,37 @@ def load_data(control, tamanio):
     """
     Carga los datos
     """
-    #TODO: Realizar la carga de datos
     temblores = "temblores-utf8"+tamanio
     result = controller.load_data(control, temblores)
     print("---- EATHQUAKES RESULTS ----")
- 
-    #print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
     return result
-def print_data(control, id):
-    """
-        Función que imprime un dato dado su ID
-    """
-    #TODO: Realizar la función para imprimir un elemento
-    pass
 
 def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 1
-    initial_date = dt.strptime(input("Ingrese la fecha inicial(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
-    final_date = dt.strptime(input("Ingrese la fecha final(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
+    initial_date = dt.strptime(input("Ingrese la fecha inicial(YYYY-mm-dd): "),"%Y-%m-%d").date()
+    final_date = dt.strptime(input("Ingrese la fecha final(YYYY-mm-dd): "),"%Y-%m-%d").date()
     result, total = controller.req_1(control, initial_date, final_date)
     
     print("============= REQ No. 1 Results ============")
+    print("Total de eventos encontrados: ", total)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
-    print("Total different dates: "+str(total))
 
 def print_req_2(control):
     """
         Función que imprime la solución del Requerimiento 2 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 2
-    pass
+    print("============= REQ No. 2 Inputs ============")
 
+    lower = float(input("Ingrese el limite inferior: "))
+    upper = float(input("Ingrese el limite superior: "))
+    result, contador = controller.req_2(control, lower, upper)
+    
+    print("============= REQ No. 2 Results ============")
+
+    print("Total de eventos encontrados:",contador)
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 def print_req_3(control):
     """
@@ -220,3 +217,4 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
+

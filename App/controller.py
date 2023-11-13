@@ -97,13 +97,12 @@ def req_1(control, initial, final):
     return model.get3(temblores), contador
 
 
-def req_2(control):
+def req_2(control, low, high):
     """
     Retorna el resultado del requerimiento 2
     """
-    # TODO: Modificar el requerimiento 2
-    pass
-
+    temblores, contador = model.req_2(control["model"], low, high)
+    return model.get3(temblores), contador
 
 def req_3(control):
     """
@@ -189,3 +188,5 @@ def delta_memory(stop_memory, start_memory):
     # de Byte -> kByte
     delta_memory = delta_memory/1024.0
     return delta_memory
+def mag(control):
+    return model.mag(control["model"])
