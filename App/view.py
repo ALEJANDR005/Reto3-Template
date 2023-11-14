@@ -146,7 +146,9 @@ def print_req_5(control):
     result = controller.req_5(control, depth, nst)
     
     print("============= REQ No. 5 Results ============")
-    print(result)
+
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+
 
 def print_req_6(control):
     """
