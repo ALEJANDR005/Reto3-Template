@@ -26,7 +26,7 @@
 
 
 import config as cf
-import datetime
+from time import strptime
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -58,7 +58,6 @@ def new_data_structs():
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
-    #TODO: Inicializar las estructuras de datos
     earthquakes = {"temblores": None,
                     "time": None,
                     "mag": None,
@@ -193,7 +192,6 @@ def temblores_size(earthquake):
     """
     Retorna el tamaño de la lista de datos
     """
-    #TODO: Crear la función para obtener el tamaño de una lista
     return lt.size(earthquake["temblores"])
 
 
@@ -212,9 +210,10 @@ def req_1(earthquakes, initial, final):
     while i<= lt.size(llaves):
         key = lt.getElement(llaves, i)
         value = lt.getElement(valores, i)
+        value3 = get3_normal_req1_2(value)
         dic = {"time": key,       
                 "events": lt.size(value),    
-                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+                "details": tabulate(lt.iterator(value3),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
                 }
         lt.addLast(resp, dic)
         i+=1
@@ -238,9 +237,10 @@ def req_2(earthquakes, inferior, superior):
     while i<= lt.size(keys):
         key = lt.getElement(keys,i)
         value = lt.getElement(values,i)
+        value3 = get3_normal_req1_2(value)
         dic = {"mag":key,
                "events": lt.size(value),
-               "details": tabulate(lt.iterator(value), headers="keys", tablefmt="grid",maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+               "details": tabulate(lt.iterator(value3), headers="keys", tablefmt="grid",maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
                }
         lt.addLast(answer, dic)
         i+=1
@@ -270,7 +270,7 @@ def req_5(earthquakes, min_depth, min_nst):
     max_depth = om.maxKey(depth_arbol)
     keys = om.keys(depth_arbol, min_depth, max_depth)  
     answer = lt.newList("ARRAY_LIST")
-
+    contador = 0
     for depth_key in lt.iterator(keys):        
         element_depth = om.get(depth_arbol, depth_key)
         value_element = element_depth["value"]
@@ -281,8 +281,11 @@ def req_5(earthquakes, min_depth, min_nst):
                 nst = 0
             if nst >= min_nst:
                 lt.addLast(answer, element)
+                contador+=1
+    answer_sorted = sorted(answer['elements'], key=lambda x: x['time'], reverse=True)
+
     final = lt.newList("ARRAY_LIST")
-    for data in lt.iterator(answer):
+    for data in (answer_sorted):
         keys = data.keys()
         table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
 
@@ -290,7 +293,8 @@ def req_5(earthquakes, min_depth, min_nst):
                "events" :1,
                "details" : table}
         lt.addLast(final, dic)
-    return final 
+    final3 = get3(final)
+    return final3, contador
 
 
 def req_6(data_structs):
@@ -355,6 +359,20 @@ def cmpDates(date1, date2):
     """
     Compara dos fechas
     """
+    if (date1 == date2):
+        return 0
+    elif (date1 > date2):
+        return 1
+    else:
+        return -1
+    
+def cmpDates_req5(data1, data2):
+    """
+    Compara dos fechas
+    """
+    date1 = data1["time"]
+    date2 = data2["time"]
+    
     if (date1 == date2):
         return 0
     elif (date1 > date2):
@@ -432,6 +450,16 @@ def get3_normal(lista):
         sublist = lista
     return sublist 
 
+
+def get3_normal_req1_2(lista):
+    if lt.size(lista) > 3:
+        sublist = lt.newList("ARRAY_LIST")
+        for x in range(0,3):
+            element = lt.getElement(lista, x)
+            lt.addLast(sublist, element)
+    else:
+        sublist = lista
+    return sublist 
 
 def mag(earthquakes):
     return earthquakes["mag"]

@@ -143,12 +143,12 @@ def print_req_5(control):
 
     depth = float(input("Ingrese la profundida minima: "))
     nst = float(input("Ingrese el nst minimo: "))
-    result = controller.req_5(control, depth, nst)
+    result, contador, time = controller.req_5(control, depth, nst)
     
     print("============= REQ No. 5 Results ============")
-
+    print("Total de eventos encontrados:",contador)
+    print("El tiempo en ms es",time)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
-
 
 def print_req_6(control):
     """
