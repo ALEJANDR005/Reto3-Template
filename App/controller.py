@@ -101,8 +101,11 @@ def req_2(control, low, high):
     """
     Retorna el resultado del requerimiento 2
     """
+    start_time = time.time()
     temblores, contador = model.req_2(control["model"], low, high)
-    return model.get3(temblores), contador
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return temblores, contador, execution_time
 
 def req_3(control):
     """
@@ -120,13 +123,12 @@ def req_4(control):
     pass
 
 
-def req_5(control):
+def req_5(control, depth, nst):
     """
     Retorna el resultado del requerimiento 5
     """
-    # TODO: Modificar el requerimiento 5
-    pass
-
+    respuesta, contador = model.req_5(control["model"], depth, nst)
+    return model.get3(respuesta), contador
 def req_6(control):
     """
     Retorna el resultado del requerimiento 6

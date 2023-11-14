@@ -57,14 +57,17 @@ def new_data_structs():
     manera vacía para posteriormente almacenar la información.
     """
     #TODO: Inicializar las estructuras de datos
-    earthquakes = {"mag": None,
-                "temblores": None,
-                "time": None,
-                }
-
-    earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
+    earthquakes = {"temblores": None,
+                    "time": None,
+                    "mag": None,
+                    "depth": None
+                    }
+    
     earthquakes["temblores"] = lt.newList("ARRAY_LIST")
     earthquakes["time"] = om.newMap(omaptype="RBT", cmpfunction=cmpDates)
+    earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
+    earthquakes["depth"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
+
     return earthquakes
 
 
@@ -104,24 +107,43 @@ def add_mag(earthquakes, temblores):
    
     return magnitudes
 
+def add_depth(earthquakes, temblores):
+    """
+    Función para agregar magnitudes al arbol.
+    """
+    magnitudes = earthquakes["depth"]
+    if not om.contains(magnitudes,temblores["depth"]):
+        lista = lt.newList("ARRAY_LIST")
+        lt.addLast(lista, temblores)
+        om.put(magnitudes, temblores["depth"], lista)
+    else:
+        pair = om.get(magnitudes, temblores["depth"])
+        lista = me.getValue(pair)
+        lt.addLast(lista, temblores)   
+        mp.put(magnitudes, temblores["depth"], lista)
+   
+    return magnitudes
+
 def add_earthquakes(earthquakes, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
+    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["nst"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
     lt.addLast(earthquakes["temblores"], data_filtrada)
     add_mag(earthquakes, data_filtrada)
     add_temblores_fechas(earthquakes, data_filtrada)
+    add_depth(earthquakes, data_filtrada)
 
-def filtrar(code, time, lat, long, mag, title,depth,felt, cdi, mmi, tsunami):
+def filtrar(code, time, lat, long, mag, nst, title,depth,felt, cdi, mmi, tsunami):
     resp = {
         "code": code,
         "time": time,
         "lat": lat,
         "long": long,
         "mag": float(mag),
+        "nst": nst if not nst in[None,"", " "] else "Unknown",
         "title": title,
-        "depth": depth,
+        "depth": float(depth),
         "felt": felt if not felt in [None, "", " "] else "Unknown",
         "cdi": cdi if not cdi in [None, "", " "] else "Unknown",
         "mmi": mmi if not mmi in [None, "", " "] else "Unknown",
@@ -170,7 +192,7 @@ def req_1(earthquakes, initial, final):
         value = lt.getElement(valores, i)
         dic = {"time": key,       
                 "events": lt.size(value),    
-                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
+                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
                 }
         lt.addLast(resp, dic)
         i+=1
@@ -196,7 +218,7 @@ def req_2(earthquakes, inferior, superior):
         value = lt.getElement(values,i)
         dic = {"mag":key,
                "events": lt.size(value),
-               "details": tabulate(lt.iterator(value), headers="keys", tablefmt="grid")
+               "details": tabulate(lt.iterator(value), headers="keys", tablefmt="grid",maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
                }
         lt.addLast(answer, dic)
         i+=1
@@ -221,14 +243,25 @@ def req_4(data_structs):
     pass
 
 
-def req_5(data_structs):
+def req_5(earthquakes, depth, nst):
     """
     Función que soluciona el requerimiento 5
     """
-    # TODO: Realizar el requerimiento 5
-    pass
-
-
+    
+    mapa = earthquakes["depth"]
+    high  = om.maxKey(mapa)
+    values = om.values(mapa, depth, high)
+    keys = om.keys(mapa, depth, values)
+    lt.iterator(values)
+    answer = lt.newList("ARRAY_LIST")
+    
+    for value in values:
+        if value["nst"]>=nst:
+            dic = {"time": value["time"],
+                   "details": tabulate(lt.iterator(value), headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])}
+        lt.addLast(answer, dic)
+    
+    return answer, lt.size(keys)
 def req_6(data_structs):
     """
     Función que soluciona el requerimiento 6
@@ -305,6 +338,17 @@ def cmpMag(mag1, mag2):
     if (mag1 == mag2):
         return 0
     elif (mag1 > mag2):
+        return 1
+    else:
+        return -1
+    
+def cmpDepth(depth1, depth2):
+    """
+    Compara dos fechas
+    """
+    if (depth1 == depth2):
+        return 0
+    elif (depth1 > depth2):
         return 1
     else:
         return -1

@@ -112,12 +112,12 @@ def print_req_2(control):
 
     lower = float(input("Ingrese el limite inferior: "))
     upper = float(input("Ingrese el limite superior: "))
-    result, contador = controller.req_2(control, lower, upper)
+    result, contador, time = controller.req_2(control, lower, upper)
     
     print("============= REQ No. 2 Results ============")
-
     print("Total de eventos encontrados:",contador)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+    print("El tiempo en ms es",time)
 
 def print_req_3(control):
     """
@@ -139,8 +139,16 @@ def print_req_5(control):
     """
         Función que imprime la solución del Requerimiento 5 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    print("============= REQ No. 5 Inputs ============")
+
+    depth = float(input("Ingrese la profundida minima: "))
+    nst = float(input("Ingrese el nst minimo: "))
+    result, contador = controller.req_5(control, depth, nst)
+    
+    print("============= REQ No. 5 Results ============")
+
+    print("Total de eventos encontrados:",contador)
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 
 def print_req_6(control):
