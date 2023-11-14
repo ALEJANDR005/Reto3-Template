@@ -127,8 +127,8 @@ def req_5(control, depth, nst):
     """
     Retorna el resultado del requerimiento 5
     """
-    respuesta, contador = model.req_5(control["model"], depth, nst)
-    return model.get3(respuesta), contador
+    return model.req_5(control["model"], depth, nst)
+
 def req_6(control):
     """
     Retorna el resultado del requerimiento 6
