@@ -265,41 +265,6 @@ def req_4(data_structs):
     pass
 
 
-"""def req_5(earthquakes, depth, nst):
-
-    
-    arbol = earthquakes["depth"]
-    values_depth = om.values(arbol, depth, om.maxKey(arbol))
-    fechas = om.newMap(cmpfunction=cmpDates)
-
-    contador = 0    
-    for value in lt.iterator(values_depth):
-        element = value["elements"]
-        lt.iterator(element)
-        values_nst  =om.values(element["nst"], nst, om.maxKey(value["nst"]))
-        for evento in lt.iterator(values_nst):
-            for evento in lt.iterator(evento):
-                time = evento["time"]
-                if om.contains(fechas, time):
-                    value = me.getValue(om.get(fechas, time))
-                else:
-                    value = lt.newList("ARRAY_LIST")
-                    om.put(fechas, time, value)
-                contador+=1
-                lt.addLast(value, evento)
-                
-    lista_fechas = om.keySet(fechas)
-    lista_listas_eventos = om.valueSet(fechas)
-    lista_retorno = lt.newList("ARRAY_LIST")
-    
-    for i in range(1, lt.size(lista_fechas)+1):
-        titulos = ["mag","lat","long", "depth", "sig", "gap", "nst", "title", "cdi", "mmi", "magType", "type", "code"]
-        dic = {"time": lt.getElement(lista_fechas, i),
-               "events": lt.size(lt.getElement(lista_listas_eventos,i)),
-               "details": tabulate(lt.iterator(get3(lt.getElement(lista_listas_eventos))), headers=titulos, tablefmt="grid")}
-        lt.addFirst(lista_retorno, dic)
-    return lista_retorno, contador"""
-
 def req_5(earthquakes, min_depth, min_nst):
     depth_arbol = earthquakes["depth"]
     max_depth = om.maxKey(depth_arbol)
@@ -319,7 +284,7 @@ def req_5(earthquakes, min_depth, min_nst):
     final = lt.newList("ARRAY_LIST")
     for data in lt.iterator(answer):
         keys = data.keys()
-        table = tabulate([data.values()], headers=keys, tablefmt="grid")
+        table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
 
         dic = {"time": data["time"],
                "events" :1,
