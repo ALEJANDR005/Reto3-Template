@@ -164,7 +164,14 @@ def print_req_6(control):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    print("============= REQ No. 3  ============")
+
+    year = input("Ingrese la profundida mínima: ")
+    result, time = controller.req_5(control, year)
+    
+    print("============= REQ No. 3 Results ============")
+    print("El tiempo en ms es",time)
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 
 def print_req_7(control):
