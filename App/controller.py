@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
-
+from datetime import datetime
 import config as cf
 import model
 import time
@@ -63,7 +63,10 @@ def load_data(control, ruta):
     eathquakesFile = os.path.join(cf.data_dir+"/earthquakes", ruta)
     inputEarthquakesFile = csv.DictReader(open(eathquakesFile, encoding="utf-8"))
     for temblor in inputEarthquakesFile:
-        temblor["time"] = dt.strptime(temblor["time"], ("%Y-%m-%dT%H:%M:%S.%fZ")).date()
+        tiempo_str = temblor["time"]
+        tiempo_datetime = datetime.strptime(tiempo_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        tiempo_date = tiempo_datetime.date()
+        temblor["time"] = tiempo_date
         model.add_earthquakes(earthquakes, temblor)
     sizeEarthquakes= model.temblores_size(earthquakes)
     return sizeEarthquakes, model.get5(earthquakes["temblores"])
@@ -107,12 +110,16 @@ def req_2(control, low, high):
     execution_time = end_time - start_time
     return temblores, contador, execution_time
 
-def req_3(control):
+def req_3(control, min_depth, min_mag):
     """
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
-    pass
+    start_time = time.time()
+    result, contador = model.req_5(control["model"], min_depth, min_mag)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return result, contador, execution_time
 
 
 def req_4(control , sig_min , gap_max):
@@ -130,14 +137,18 @@ def req_5(control, depth, nst):
     """
     Retorna el resultado del requerimiento 5
     """
-    respuesta, contador = model.req_5(control["model"], depth, nst)
-    return model.get3(respuesta), contador
-def req_6(control):
+    start_time = time.time()
+    result, contador = model.req_5(control["model"], depth, nst)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return result, contador, execution_time
+
+def req_6(control, year, lat, long, radius, n_events):
     """
     Retorna el resultado del requerimiento 6
     """
-    # TODO: Modificar el requerimiento 6
-    pass
+    result = model.req_6(control["model"],year, lat, long, radius, n_events)
+    return result 
 
 
 def req_7(control ,  año , titulo , propiedad , bins):

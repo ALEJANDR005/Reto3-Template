@@ -124,7 +124,16 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    print("============= REQ No. 3  ============")
+
+    depth = float(input("Ingrese la profundida mínima: "))
+    mag = float(input("Ingrese la magnitud mínima: "))
+    result, contador, time = controller.req_5(control, depth, mag)
+    
+    print("============= REQ No. 3 Results ============")
+    print("Total de eventos encontrados:",contador)
+    print("El tiempo en ms es",time)
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 
 def print_req_4(control):
@@ -152,21 +161,26 @@ def print_req_5(control):
 
     depth = float(input("Ingrese la profundida minima: "))
     nst = float(input("Ingrese el nst minimo: "))
-    result, contador = controller.req_5(control, depth, nst)
+    result, contador, time = controller.req_5(control, depth, nst)
     
     print("============= REQ No. 5 Results ============")
-
     print("Total de eventos encontrados:",contador)
+    print("El tiempo en ms es",time)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
-
-
 def print_req_6(control):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    print("============= REQ No. 6 Inputs ============")
 
+    year = (input("Ingrese el año: "))
+    lat = float(input("Ingrese la latitud: "))
+    long  = float(input("Ingrese la longitud: "))
+    radius = 6371
+    n_events = int(input("Ingrese en numero de eventos: "))
+    result = controller.req_6(control, year, lat, long, radius, n_events)
+    
+    print(result)
 
 def print_req_7(control):
     """
