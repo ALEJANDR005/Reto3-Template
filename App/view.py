@@ -175,8 +175,11 @@ def print_req_6(control):
     # TODO: Imprimir el resultado del requerimiento 6
     print("============= REQ No. 5 Inputs ============")
 
-    year = input("Ingrese el año: ")
-    result, execution_time = controller.req_6(control, year)
+    year = int(input("Ingrese el año: "))
+    dlat = input("Ingrese el delta de latitud: ")
+    dlon = input("Ingrese el delta de longitud: ")
+
+    result, execution_time = controller.req_6(control, year, dlat, dlon)
     
     print("============= REQ No. 6 Results ============")
     print(f"Execution Time: {execution_time} seconds")

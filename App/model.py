@@ -323,7 +323,7 @@ def req_5(earthquakes, min_depth, min_nst):
     return final3, contador
 
 
-def req_6(earthquakes, year):
+def req_6(earthquakes, year, dlat, dlon):
     """
     Función que soluciona el requerimiento 6
     """
@@ -346,30 +346,7 @@ def req_6(earthquakes, year):
                 "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
                 }
         lt.addLast(resp, dic)
-    
-    i = 1
-    latitudes = []  
-    longitudes = [] 
-
-    while i <= lt.size(llaves):
-        key = lt.getElement(llaves, i)
-        value = lt.getElement(valores, i)
-        dic = {"time": key, "events": lt.size(value), "details": []}
-        for evento in lt.iterator(value):
-            lat = evento.get("lat", None)
-            lon = evento.get("lon", None)
-            if lat is not None and lon is not None:
-                dic["details"].append({"lat": lat, "lon": lon})
-                latitudes.append(lat)
-                longitudes.append(lon)
-
-    lt.addLast(resp, dic)
-    i += 1
-    
-    lat1, lon1 = math.radians(latitudes[0]), math.radians(longitudes[0])
-    lat2, lon2 = math.radians(latitudes[1]), math.radians(longitudes[1])
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
+        
     a = math.sin(dlat/2)**2 + math.cos(dlat) * math.cos(dlon) * math.sin(dlon/2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     distancia = c * radio
