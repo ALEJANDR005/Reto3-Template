@@ -140,9 +140,18 @@ def print_req_4(control):
     """
         Función que imprime la solución del Requerimiento 4 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 4
-    pass
+    print("============= REQ No. 4 Inputs ============")
 
+    sig = float(input("Ingrese la sig minima: "))
+    gap = float(input("Ingrese el gap maximo: "))
+    result, contador , execution_time = controller.req_4(control, sig, gap)
+    
+    print("============= REQ No. 4 Results ============")
+    print(f"Execution Time: {execution_time} seconds")
+
+    print("Total de eventos encontrados:",contador)
+    
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 def print_req_5(control):
     """
@@ -158,28 +167,31 @@ def print_req_5(control):
     print("Total de eventos encontrados:",contador)
     print("El tiempo en ms es",time)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
-
 def print_req_6(control):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    print("============= REQ No. 3  ============")
-
-    year = input("Ingrese la profundida mínima: ")
-    result, time = controller.req_5(control, year)
-    
-    print("============= REQ No. 3 Results ============")
-    print("El tiempo en ms es",time)
-    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+    pass
 
 
 def print_req_7(control):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    print("============= REQ No. 5 Inputs ============")
+
+    año= int(input("Ingrese el año "))
+    titulo = input("Ingrese el titulo: ")
+    propiedad = input("Ingrese la propeidad: ")
+    bins = input("Ingrese los bins: ")
+    result, execution_time = controller.req_7(control, año , titulo , propiedad , bins)
+    
+    print("============= REQ No. 5 Results ============")
+    print(f"Execution Time: {execution_time} seconds")
+
+    
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 
 def print_req_8(control):

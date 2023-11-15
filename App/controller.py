@@ -122,12 +122,15 @@ def req_3(control, min_depth, min_mag):
     return result, contador, execution_time
 
 
-def req_4(control):
+def req_4(control , sig_min , gap_max):
     """
     Retorna el resultado del requerimiento 4
     """
-    # TODO: Modificar el requerimiento 4
-    pass
+    start_time = time.time()
+    temblores, contador = model.req_4(control["model"], sig_min, gap_max)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return temblores, contador, execution_time
 
 
 def req_5(control, depth, nst):
@@ -140,24 +143,23 @@ def req_5(control, depth, nst):
     execution_time = end_time - start_time
     return result, contador, execution_time
 
-def req_6(control, year):
+def req_6(control):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    start_time = time.time()
-    result,  = model.req_5(control["model"], year)
-    end_time = time.time()
-    execution_time = end_time - start_time
-    return result, execution_time
+    pass
 
 
-def req_7(control):
+def req_7(control ,  año , titulo , propiedad , bins):
     """
     Retorna el resultado del requerimiento 7
     """
-    # TODO: Modificar el requerimiento 7
-    pass
+    start_time = time.time()
+    temblores = model.req_7(control["model"], año , titulo , propiedad , bins)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return temblores,execution_time
 
 
 def req_8(control):

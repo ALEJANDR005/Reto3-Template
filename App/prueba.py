@@ -1,9 +1,9 @@
 from datetime import datetime
 
-tiempo_str = "1995-12-26T14:50:17.170000Z"
+fecha_str = '2012-12-12'
 
-tiempo_datetime = datetime.strptime(tiempo_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+fecha_obj = datetime.strptime(fecha_str, '%Y-%m-%d').date()
 
-tiempo_date = tiempo_datetime.date()
+año = fecha_obj.year
 
-print(tiempo_date)  
+print(año)
