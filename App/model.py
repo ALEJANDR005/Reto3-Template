@@ -24,7 +24,7 @@
  * Dario Correal - Version inicial
  """
 
-
+import matplotlib.pyplot as plt
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
@@ -60,13 +60,17 @@ def new_data_structs():
     earthquakes = {"temblores": None,
                     "time": None,
                     "mag": None,
-                    "depth": None
+                    "depth": None,
+                    "sig": None,
+                    "gap": None,
                     }
     
     earthquakes["temblores"] = lt.newList("ARRAY_LIST")
     earthquakes["time"] = om.newMap(omaptype="RBT", cmpfunction=cmpDates)
     earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
-    earthquakes["depth"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
+    earthquakes["depth"] = om.newMap(omaptype="RBT", cmpfunction=cmpDepth)
+    earthquakes["sig"] = om.newMap(omaptype="RBT", cmpfunction=cmpSig)
+    earthquakes["gap"] = om.newMap(omaptype="RBT", cmpfunction=cmpGap)
 
     return earthquakes
 
@@ -107,6 +111,40 @@ def add_mag(earthquakes, temblores):
    
     return magnitudes
 
+def add_sig(earthquakes, temblores):
+    """
+    Función para agregar magnitudes al arbol.
+    """
+    sigs = earthquakes["sig"]
+    if not om.contains(sigs,temblores["sig"]):
+        lista = lt.newList("ARRAY_LIST")
+        lt.addLast(lista, temblores)
+        om.put(sigs, temblores["sig"], lista)
+    else:
+        pair = om.get(sigs, temblores["sig"])
+        lista = me.getValue(pair)
+        lt.addLast(lista, temblores)   
+        mp.put(sigs, temblores["sig"], lista)
+   
+    return sigs
+
+def add_gap(earthquakes, temblores):
+    """
+    Función para agregar magnitudes al arbol.
+    """
+    gaps = earthquakes["gap"]
+    if not om.contains(gaps,temblores["gap"]):
+        lista = lt.newList("ARRAY_LIST")
+        lt.addLast(lista, temblores)
+        om.put(gaps, temblores["gap"], lista)
+    else:
+        pair = om.get(gaps, temblores["gap"])
+        lista = me.getValue(pair)
+        lt.addLast(lista, temblores)   
+        mp.put(gaps, temblores["gap"], lista)
+   
+    return gaps
+
 def add_depth(earthquakes, temblores):
     """
     Función para agregar magnitudes al arbol.
@@ -128,13 +166,15 @@ def add_earthquakes(earthquakes, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["nst"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
+    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["nst"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"] , data["sig"] , data["gap"])
     lt.addLast(earthquakes["temblores"], data_filtrada)
     add_mag(earthquakes, data_filtrada)
     add_temblores_fechas(earthquakes, data_filtrada)
     add_depth(earthquakes, data_filtrada)
+    add_sig(earthquakes, data_filtrada)
+    add_gap(earthquakes, data_filtrada)
 
-def filtrar(code, time, lat, long, mag, nst, title,depth,felt, cdi, mmi, tsunami):
+def filtrar(code, time, lat, long, mag, nst, title,depth,felt, cdi, mmi, tsunami , sig , gap):
     resp = {
         "code": code,
         "time": time,
@@ -147,7 +187,9 @@ def filtrar(code, time, lat, long, mag, nst, title,depth,felt, cdi, mmi, tsunami
         "felt": felt if not felt in [None, "", " "] else "Unknown",
         "cdi": cdi if not cdi in [None, "", " "] else "Unknown",
         "mmi": mmi if not mmi in [None, "", " "] else "Unknown",
-        "tsunami": False if tsunami == "0" else True
+        "tsunami": False if tsunami == "0" else True, 
+        "sig" : float(sig),
+        "gap" : float(gap) if not gap in [None, "", " "] else "Unknown"
     }
     
     return resp
@@ -235,12 +277,53 @@ def req_3(data_structs):
     pass
 
 
-def req_4(data_structs):
+def req_4(earthquakes, sig_min , gap_max):
     """
     Función que soluciona el requerimiento 4
+    
     """
-    # TODO: Realizar el requerimiento 4
-    pass
+    sig_ar = earthquakes["sig"]
+    max_sig = om.maxKey(sig_ar)
+    keys = om.keys(sig_ar, sig_min, max_sig)
+    answer = lt.newList("ARRAY_LIST")
+    contador = 0
+
+    all_elements = []
+    for sig_key in lt.iterator(keys):
+        element_sig = om.get(sig_ar, sig_key)
+        value_element = element_sig["value"]
+        elements = value_element["elements"]
+        for element in elements:
+            gap = element["gap"]
+            if gap == "Unknown":
+                gap = 0
+            if gap <= gap_max:
+                all_elements.append(element)
+                contador += 1
+
+    all_elements_sorted = sorted(all_elements, key=lambda x: x['time'], reverse=True)
+    first_15_elements = all_elements_sorted[:15]
+    selected_elements = first_15_elements[:3] + first_15_elements[-3:]
+
+    final = lt.newList("ARRAY_LIST")
+    for data in selected_elements:
+        keys = data.keys()
+        table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+
+        dic = {"time": data["time"],
+               "events": 1,
+               "details": table}
+        lt.addLast(final, dic)
+
+    final3 = get3(final)
+    return final3, contador
+    
+    
+                
+                    
+        
+    
+    
 
 
 def req_5(earthquakes, depth, nst):
@@ -270,12 +353,48 @@ def req_6(data_structs):
     pass
 
 
-def req_7(data_structs):
+def req_7(earthquakes , año , titulo , propiedad , bins):
     """
     Función que soluciona el requerimiento 7
     """
-    # TODO: Realizar el requerimiento 7
-    pass
+    propiedades = earthquakes[propiedad] 
+    max_prop = om.maxKey(propiedades)
+    min_prop = om.minKey(propiedades)
+    propiedades_value = om.values(propiedades , min_prop , max_prop)
+    
+    eventos_seleccionados = [evento for evento in earthquakes if evento["time"][:4] == año and evento["title"] == titulo]
+
+
+    if propiedad not in eventos_seleccionados[0]:
+        return {"error": "La propiedad especificada no existe en los eventos seleccionados."}
+
+
+    valores_propiedad = [evento[propiedad] for evento in eventos_seleccionados if evento[propiedad] != "Desconocido"]
+
+
+    conteo, bordes, _ = plt.hist(valores_propiedad, bins=bins, edgecolor='black', alpha=0.7)
+    plt.close()
+
+
+    eventos_seleccionados = eventos_seleccionados[:3] + eventos_seleccionados[-3:]
+
+
+    min_valor = min(valores_propiedad, default="Desconocido")
+    max_valor = max(valores_propiedad, default="Desconocido")
+
+    resultado = {
+        'num_eventos_anuales': len(eventos_seleccionados),
+        'num_eventos_histograma': len(valores_propiedad),
+        'min_valor': min_valor,
+        'max_valor': max_valor,
+        'histograma': {'conteo': conteo.tolist(), 'bordes': bordes.tolist()},
+        'eventos_seleccionados': eventos_seleccionados
+    }
+
+    return resultado
+    
+    
+    
 
 
 def req_8(data_structs):
@@ -352,6 +471,32 @@ def cmpDepth(depth1, depth2):
         return 1
     else:
         return -1
+def cmpGap(gap1, gap2):
+    """
+    Compara dos fechas
+    """
+    if gap1 =="Unknown":
+        gap1 = 0
+    if gap2 =="Unknown":
+        gap2 = 0
+    
+    if (gap1 == gap2):
+        return 0
+    elif (gap1 > gap2):
+        return 1
+    else:
+        return -1    
+    
+def cmpSig(sig1, sig2):
+    """
+    Compara dos fechas
+    """
+    if (sig1 == sig2):
+        return 0
+    elif (sig1 > sig2):
+        return 1
+    else:
+        return -1
     
 def get5(lista):
     sublist = lt.newList("ARRAY_LIST")
@@ -364,13 +509,16 @@ def get5(lista):
     return sublist 
 
 def get3(lista):
-    sublist = lt.newList("ARRAY_LIST")
-    for x in range(0,3):
-        element = lt.getElement(lista, x)
-        lt.addLast(sublist, element)
-    for x in range((lt.size(lista)-3),(lt.size(lista))):
-        element = lt.getElement(lista, x)
-        lt.addLast(sublist, element)
+    if lt.size(lista) > 6:
+        sublist = lt.newList("ARRAY_LIST")
+        for x in range(1,4):
+            element = lt.getElement(lista, x)
+            lt.addLast(sublist, element)
+        for x in range((lt.size(lista)-3),(lt.size(lista))):
+            element = lt.getElement(lista, x)
+            lt.addLast(sublist, element)
+    else:
+        sublist = lista
     return sublist 
 
 def mag(earthquakes):
