@@ -205,19 +205,18 @@ def req_1(earthquakes, initial, final):
     llaves = om.keys(treeDates, initial, final)
     lt.iterator(valores)
     resp = lt.newList("ARRAY_LIST")
-
+    
     i=1
     while i<= lt.size(llaves):
         key = lt.getElement(llaves, i)
         value = lt.getElement(valores, i)
-        value3 = get3_normal_req1_2(value)
-        dic = {"time": key,       
+        dic = { "time": key,       
                 "events": lt.size(value),    
-                "details": tabulate(lt.iterator(value3),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
                 }
         lt.addLast(resp, dic)
         i+=1
-              
+        
     return resp, lt.size(llaves)
 
 
@@ -249,12 +248,39 @@ def req_2(earthquakes, inferior, superior):
 
 
 
-def req_3(data_structs):
+def req_3(earthquakes, min_depth, min_mag):
     """
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
+    depth_arbol = earthquakes["depth"]
+    max_depth = om.maxKey(depth_arbol)
+    keys = om.keys(depth_arbol, min_depth, max_depth)  
+    answer = lt.newList("ARRAY_LIST")
+    contador = 0
+    for depth_key in lt.iterator(keys):        
+        element_depth = om.get(depth_arbol, depth_key)
+        value_element = element_depth["value"]
+        elements = value_element["elements"]
+        for element in elements:
+            mag = element["mag"]
+            if mag >= min_mag:
+                lt.addLast(answer, element)
+                contador+=1
+    answer_sorted = sorted(answer['elements'], key=lambda x: x['time'], reverse=True)
+
+    final = lt.newList("ARRAY_LIST")
+    for data in (answer_sorted):
+        keys = data.keys()
+        table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+
+        dic = {"time": data["time"],
+               "events" :1,
+               "details" : table}
+        lt.addLast(final, dic)
+    final3 = get10_req3(final)
+    return final3, contador
+
 
 
 def req_4(data_structs):
@@ -463,3 +489,14 @@ def get3_normal_req1_2(lista):
 
 def mag(earthquakes):
     return earthquakes["mag"]
+
+def get10_req3(lista):
+    if lt.size(lista) > 10:
+        sublist = lt.newList("ARRAY_LIST")
+       
+        for x in range((lt.size(lista)-10),(lt.size(lista))):
+            element = lt.getElement(lista, x)
+            lt.addLast(sublist, element)
+    else:
+        sublist = lista
+    return sublist 
