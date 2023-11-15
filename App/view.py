@@ -96,8 +96,8 @@ def print_req_1(control):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
-    initial_date = dt.strptime(input("Ingrese la fecha inicial(YYYY-mm-dd): "),"%Y-%m-%d").date()
-    final_date = dt.strptime(input("Ingrese la fecha final(YYYY-mm-dd): "),"%Y-%m-%d").date()
+    initial_date = dt.strptime(input("Ingrese la fecha inicial(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
+    final_date = dt.strptime(input("Ingrese la fecha final(YYYY-mm-dd): "),"%Y-%m-%dT%H:%M").date()
     result, total = controller.req_1(control, initial_date, final_date)
     
     print("============= REQ No. 1 Results ============")
@@ -124,7 +124,16 @@ def print_req_3(control):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    print("============= REQ No. 3  ============")
+
+    depth = float(input("Ingrese la profundida mínima: "))
+    mag = float(input("Ingrese la magnitud mínima: "))
+    result, contador, time = controller.req_5(control, depth, mag)
+    
+    print("============= REQ No. 3 Results ============")
+    print("Total de eventos encontrados:",contador)
+    print("El tiempo en ms es",time)
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
 
 
 def print_req_4(control):
