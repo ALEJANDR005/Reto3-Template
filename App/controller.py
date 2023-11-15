@@ -135,12 +135,12 @@ def req_5(control, depth, nst):
     end_time = time.time()
     execution_time = end_time - start_time
     return result, contador, execution_time
-def req_6(control):
+def req_6(control, year, lat, long, radius, n_events):
     """
     Retorna el resultado del requerimiento 6
     """
-    # TODO: Modificar el requerimiento 6
-    pass
+    result = model.req_6(control["model"],year, lat, long, radius, n_events)
+    return result 
 
 
 def req_7(control):

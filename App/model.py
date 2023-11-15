@@ -24,7 +24,7 @@
  * Dario Correal - Version inicial
  """
 
-
+import math 
 import config as cf
 from time import strptime
 from DISClib.ADT import list as lt
@@ -62,14 +62,15 @@ def new_data_structs():
                     "time": None,
                     "mag": None,
                     "depth": None, 
-                    "nst" : None
+                    "nst" : None,
+                    "sig": None,
                     }
     
     earthquakes["temblores"] = lt.newList("ARRAY_LIST")
     earthquakes["time"] = om.newMap(omaptype="RBT", cmpfunction=cmpDates)
     earthquakes["mag"] = om.newMap(omaptype="RBT", cmpfunction=cmpMag)
     earthquakes["depth"] = om.newMap(omaptype="RBT", cmpfunction=cmpDepth)
-    earthquakes["nst"] = om.newMap(omaptype="RBT", cmpfunction=cmpNst)
+    earthquakes["sig"] = om.newMap(omaptype="RBT", cmpfunction=cmpSig)
 
     return earthquakes
 
@@ -127,20 +128,20 @@ def add_depth(earthquakes, temblores):
    
     return magnitudes
 
-def add_nst(earthquakes, temblores):
+def add_sig(earthquakes, temblores):
     """
     Función para agregar magnitudes al arbol.
     """
-    magnitudes = earthquakes["nst"]
-    if not om.contains(magnitudes,temblores["nst"]):
+    magnitudes = earthquakes["sig"]
+    if not om.contains(magnitudes,temblores["sig"]):
         lista = lt.newList("ARRAY_LIST")
         lt.addLast(lista, temblores)
-        om.put(magnitudes, temblores["nst"], lista)
+        om.put(magnitudes, temblores["sig"], lista)
     else:
-        pair = om.get(magnitudes, temblores["nst"])
+        pair = om.get(magnitudes, temblores["sig"])
         lista = me.getValue(pair)
         lt.addLast(lista, temblores)   
-        mp.put(magnitudes, temblores["nst"], lista)
+        mp.put(magnitudes, temblores["sig"], lista)
    
     return magnitudes
 
@@ -148,19 +149,19 @@ def add_earthquakes(earthquakes, data):
     """
     Función para agregar nuevos elementos a la lista
     """
-    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"], data["mag"], data["nst"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
+    data_filtrada = filtrar(data["code"], data["time"], data["lat"], data["long"],data["sig"], data["mag"], data["nst"], data["title"], data["depth"], data["felt"], data["cdi"], data["mmi"], data["tsunami"])
     lt.addLast(earthquakes["temblores"], data_filtrada)
     add_mag(earthquakes, data_filtrada)
     add_temblores_fechas(earthquakes, data_filtrada)
     add_depth(earthquakes, data_filtrada)
-    add_nst(earthquakes, data_filtrada)
-
-def filtrar(code, time, lat, long, mag, nst, title,depth,felt, cdi, mmi, tsunami):
+    add_sig(earthquakes, data_filtrada)
+def filtrar(code, time, lat, long, sig, mag, nst, title,depth,felt, cdi, mmi, tsunami):
     resp = {
         "code": code,
         "time": time,
         "lat": lat,
         "long": long,
+        "sig" : sig,
         "mag": float(mag),
         "nst": float(nst) if not nst in[None,"", " "] else "Unknown",
         "title": title,
@@ -213,12 +214,12 @@ def req_1(earthquakes, initial, final):
         value3 = get3_normal_req1_2(value)
         dic = {"time": key,       
                 "events": lt.size(value),    
-                "details": tabulate(lt.iterator(value3),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+                "details": tabulate(lt.iterator(value3),headers="keys",tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, None, 20, None, None, None, None, None])
                 }
         lt.addLast(resp, dic)
         i+=1
               
-    return resp, lt.size(llaves)
+    return get3(resp), lt.size(llaves)
 
 
 def req_2(earthquakes, inferior, superior):
@@ -240,12 +241,12 @@ def req_2(earthquakes, inferior, superior):
         value3 = get3_normal_req1_2(value)
         dic = {"mag":key,
                "events": lt.size(value),
-               "details": tabulate(lt.iterator(value3), headers="keys", tablefmt="grid",maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+               "details": tabulate(lt.iterator(value3), headers="keys", tablefmt="grid",maxcolwidths=[None, None, None, None, None, None, None, 20, None, None, None, None, None])
                }
         lt.addLast(answer, dic)
         i+=1
         
-    return answer, lt.size(keys)
+    return get3(answer), lt.size(keys)
 
 
 
@@ -283,11 +284,14 @@ def req_5(earthquakes, min_depth, min_nst):
                 lt.addLast(answer, element)
                 contador+=1
     answer_sorted = sorted(answer['elements'], key=lambda x: x['time'], reverse=True)
-
+    if len(answer_sorted)>20:
+        answer_filtered = answer_sorted[:20]
+    else:
+        answer_filtered = answer_sorted
     final = lt.newList("ARRAY_LIST")
-    for data in (answer_sorted):
+    for data in (answer_filtered):
         keys = data.keys()
-        table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, 20, None, None, None, None, None])
+        table = tabulate([data.values()], headers=keys, tablefmt="grid", maxcolwidths=[None, None, None, None, None, None, None, 20, None, None, None, None, None])
 
         dic = {"time": data["time"],
                "events" :1,
@@ -297,13 +301,47 @@ def req_5(earthquakes, min_depth, min_nst):
     return final3, contador
 
 
-def req_6(data_structs):
+def req_6(earthquakes, year, lat, long, radius, n_events):
     """
     Función que soluciona el requerimiento 6
     """
-    # TODO: Realizar el requerimiento 6
-    pass
+    treeDates = earthquakes["time"]
+    initial = "{year}-01-01T00:00".format(year)
+    final = "{year}-12-30T00:00".format(year)
 
+    valores = om.values(treeDates, initial, final)
+    llaves = om.keys(treeDates, initial, final)
+    lt.iterator(valores)
+    resp = lt.newList("ARRAY_LIST")
+    
+    i=1
+    while i<= lt.size(llaves):
+        key = lt.getElement(llaves, i)
+        value = lt.getElement(valores, i)
+        dic = { "time": key,       
+                "events": lt.size(value),    
+                "details": tabulate(lt.iterator(value),headers="keys",tablefmt="grid")
+                }
+        lt.addLast(resp, dic)
+        i =+1
+    return resp
+    
+def haversine(D, 𝜙1, 𝜙2, 𝜆1, 𝜆2, 𝜇𝐸=6371):
+    """
+    Calcula la distancia entre dos puntos en la superficie de la Tierra utilizando la fórmula de Haversine.
+
+    :param D: Distancia entre los dos puntos en kilómetros.
+    :param 𝜙1: Latitud del primer punto en radianes.
+    :param 𝜙2: Latitud del segundo punto en radianes.
+    :param 𝜆1: Longitud del primer punto en radianes.
+    :param 𝜆2: Longitud del segundo punto en radianes.
+    :param 𝜇𝐸: Radio de la Tierra en kilómetros (por defecto, 6371 km).
+    :return: Distancia calculada en kilómetros.
+    """
+    sin_term = math.sin((𝜙2 - 𝜙1) / 2) ** 2
+    cos_term = math.cos(𝜙1) * math.cos(𝜙2) * math.sin((𝜆2 - 𝜆1) / 2) ** 2
+    distance = 2 * math.asin(math.sqrt(sin_term + cos_term)) * 𝜇𝐸
+    return distance
 
 def req_7(data_structs):
     """
@@ -415,7 +453,13 @@ def cmpNst(nst1, nst2):
         return 1
     else:
         return -1
-    
+def cmpSig(sig1, sig2):
+    if (sig1 == sig2):
+        return 0
+    elif (sig1 > sig2):
+        return 1
+    else:
+        return -1
 def get5(lista):
     sublist = lt.newList("ARRAY_LIST")
     for x in range(0,5):
@@ -429,7 +473,7 @@ def get5(lista):
 def get3(lista):
     if lt.size(lista) > 6:
         sublist = lt.newList("ARRAY_LIST")
-        for x in range(0,3):
+        for x in range(1,4):
             element = lt.getElement(lista, x)
             lt.addLast(sublist, element)
         for x in range((lt.size(lista)-3),(lt.size(lista))):
@@ -454,7 +498,7 @@ def get3_normal(lista):
 def get3_normal_req1_2(lista):
     if lt.size(lista) > 3:
         sublist = lt.newList("ARRAY_LIST")
-        for x in range(0,3):
+        for x in range(1,4):
             element = lt.getElement(lista, x)
             lt.addLast(sublist, element)
     else:
