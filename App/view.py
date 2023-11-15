@@ -167,12 +167,23 @@ def print_req_5(control):
     print("Total de eventos encontrados:",contador)
     print("El tiempo en ms es",time)
     print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+
 def print_req_6(control):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    print("============= REQ No. 5 Inputs ============")
+
+    year = input("Ingrese el año: ")
+    result, execution_time = controller.req_6(control, year)
+    
+    print("============= REQ No. 6 Results ============")
+    print(f"Execution Time: {execution_time} seconds")
+
+    
+    print(tabulate(lt.iterator(result), headers="keys", tablefmt="grid"))
+
 
 
 def print_req_7(control):

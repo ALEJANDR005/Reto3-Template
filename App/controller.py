@@ -143,13 +143,17 @@ def req_5(control, depth, nst):
     execution_time = end_time - start_time
     return result, contador, execution_time
 
-def req_6(control):
+
+def req_6(control, year):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    pass
-
+    start_time = time.time()
+    result,  = model.req_5(control["model"], year)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return result, execution_time
 
 def req_7(control ,  año , titulo , propiedad , bins):
     """
